@@ -6,29 +6,18 @@ import {
   CreditCard,
   FileText,
   HelpCircle,
-  Clock,
-  GraduationCap,
   MessageSquare,
   ChevronLeft,
-  ChevronDown,
-  ChevronUp,
-  CheckCircle2
+  Award,
+  AlertCircle
 } from 'lucide-react';
 import { useStudent } from '../context/StudentContext';
 import ProfileModal from '../components/ProfileModal';
 
-export default function ProgressPage({ onNavigate, onBackToCourses }) {
+export default function QuizPage({ onNavigate, onBackToCourses }) {
   const { student } = useStudent();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [expandedModuleId, setExpandedModuleId] = useState(null);
-
-  const totalTopics = student.modules?.reduce((acc, m) => acc + m.total, 0) || 81;
-  const completedTopics = student.modules?.reduce((acc, m) => acc + m.completed, 0) || 58;
-  const pendingTopics = totalTopics - completedTopics;
-
-  const toggleAccordion = (id) => {
-    setExpandedModuleId(expandedModuleId === id ? null : id);
-  };
+  const [activeTab, setActiveTab] = useState('upcoming'); // 'upcoming' | 'completed'
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex text-gray-800 font-sans">
@@ -64,7 +53,7 @@ export default function ProgressPage({ onNavigate, onBackToCourses }) {
             </button>
             <button
               onClick={() => onNavigate('progress')}
-              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-smit-blue bg-blue-50/70 rounded-lg transition"
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition"
             >
               <BookOpen size={16} />
               <span>Progress</span>
@@ -92,7 +81,7 @@ export default function ProgressPage({ onNavigate, onBackToCourses }) {
             </button>
             <button
               onClick={() => onNavigate('quiz')}
-              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition"
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-smit-blue bg-blue-50/70 rounded-lg transition"
             >
               <HelpCircle size={16} />
               <span>Quiz</span>
@@ -133,7 +122,7 @@ export default function ProgressPage({ onNavigate, onBackToCourses }) {
               {student.courseName}
             </span>
             <span>&gt;</span>
-            <span className="text-gray-800 font-medium">Progress</span>
+            <span className="text-gray-800 font-medium">Quiz</span>
           </div>
 
           <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-smit-blue transition">
@@ -142,105 +131,98 @@ export default function ProgressPage({ onNavigate, onBackToCourses }) {
           </button>
         </header>
 
-        <main className="p-6 overflow-y-auto max-w-6xl w-full">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <main className="p-6 overflow-y-auto max-w-6xl w-full space-y-6">
+          {/* Top Stat Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-2xs flex justify-between items-start">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">{totalTopics}</h3>
-                <p className="text-xs text-gray-400 mt-1">Total Topics</p>
+                <h3 className="text-2xl font-bold text-gray-900">0</h3>
+                <p className="text-xs text-gray-400 mt-1">Upcoming Quizzes</p>
+              </div>
+              <div className="w-8 h-8 rounded-md bg-blue-50 text-blue-500 flex items-center justify-center">
+                <HelpCircle size={18} />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-2xs flex justify-between items-start">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">2</h3>
+                <p className="text-xs text-gray-400 mt-1">Completed Quizzes</p>
               </div>
               <div className="w-8 h-8 rounded-md bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                <BookOpen size={18} />
+                <Award size={18} />
               </div>
             </div>
 
             <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-2xs flex justify-between items-start">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">{completedTopics}</h3>
-                <p className="text-xs text-gray-400 mt-1">Completed Topics</p>
+                <h3 className="text-2xl font-bold text-gray-900">85%</h3>
+                <p className="text-xs text-gray-400 mt-1">Average Score</p>
               </div>
               <div className="w-8 h-8 rounded-md bg-purple-50 text-purple-500 flex items-center justify-center">
-                <GraduationCap size={18} />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-2xs flex justify-between items-start">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">{pendingTopics}</h3>
-                <p className="text-xs text-gray-400 mt-1">Pending Topics</p>
-              </div>
-              <div className="w-8 h-8 rounded-md bg-red-50 text-red-400 flex items-center justify-center">
-                <Clock size={18} />
+                <Award size={18} />
               </div>
             </div>
           </div>
 
-          <div className="space-y-3">
-            {student.modules?.map((mod) => {
-              const isCompleted = mod.percentage === 100;
-              const isExpanded = expandedModuleId === mod.id;
+          {/* Main Card with Tabs */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-2xs p-6">
+            <div className="flex border-b border-gray-100 mb-6">
+              <button
+                onClick={() => setActiveTab('upcoming')}
+                className={`pb-3 px-4 text-xs font-semibold transition ${
+                  activeTab === 'upcoming'
+                    ? 'text-smit-blue border-b-2 border-smit-blue'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                Upcoming Quizzes
+              </button>
+              <button
+                onClick={() => setActiveTab('completed')}
+                className={`pb-3 px-4 text-xs font-semibold transition ${
+                  activeTab === 'completed'
+                    ? 'text-smit-blue border-b-2 border-smit-blue'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                Completed Quizzes
+              </button>
+            </div>
 
-              return (
-                <div
-                  key={mod.id}
-                  className="bg-white rounded-xl border border-gray-100 shadow-2xs overflow-hidden transition"
-                >
-                  <div
-                    onClick={() => toggleAccordion(mod.id)}
-                    className="p-4 sm:p-5 flex items-center justify-between cursor-pointer hover:bg-gray-50/70 select-none"
-                  >
-                    <div className="flex items-center gap-3.5">
-                      <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                          isCompleted
-                            ? 'bg-emerald-100 text-emerald-600'
-                            : 'bg-amber-50 text-amber-500'
-                        }`}
-                      >
-                        {isCompleted ? <CheckCircle2 size={16} /> : <Clock size={16} />}
-                      </div>
-
-                      <div>
-                        <h4 className="text-sm font-bold text-gray-800 tracking-tight">
-                          {mod.title}
-                        </h4>
-                        <p className="text-[11px] text-gray-400 mt-0.5">
-                          Topics: {mod.completed}/{mod.total}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-6 rounded-full bg-blue-50 text-smit-blue border border-blue-200 flex items-center justify-center text-[11px] font-bold">
-                        {mod.percentage}%
-                      </div>
-                      <button className="text-gray-400 hover:text-gray-600">
-                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {isExpanded && (
-                    <div className="px-5 pb-5 pt-1 border-t border-gray-50 bg-gray-50/40">
-                      <p className="text-xs font-semibold text-gray-600 mb-2 mt-2">
-                        Covered Topics & Syllabus Breakdown:
-                      </p>
-                      <ul className="space-y-1.5 pl-2">
-                        {mod.subTopics?.map((topic, i) => (
-                          <li
-                            key={i}
-                            className="text-xs text-gray-600 flex items-center gap-2"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                            <span>{topic}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+            {activeTab === 'upcoming' ? (
+              <div className="py-12 flex flex-col items-center justify-center text-center">
+                <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-3 border border-gray-100">
+                  <AlertCircle size={22} />
                 </div>
-              );
-            })}
+                <h4 className="text-sm font-bold text-gray-700">No Upcoming Quizzes</h4>
+                <p className="text-xs text-gray-400 mt-1 max-w-sm">
+                  You do not have any scheduled quizzes for this course at the moment. Your instructor will announce future test dates.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="p-4 bg-gray-50 rounded-xl flex items-center justify-between border border-gray-100">
+                  <div>
+                    <h5 className="text-xs font-bold text-gray-800">Quiz 1: HTML & CSS Core</h5>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Attempted on: July 20, 2026</p>
+                  </div>
+                  <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-100 text-emerald-700">
+                    90 / 100
+                  </span>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-xl flex items-center justify-between border border-gray-100">
+                  <div>
+                    <h5 className="text-xs font-bold text-gray-800">Quiz 2: JavaScript ES6 & DOM</h5>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Attempted on: August 14, 2026</p>
+                  </div>
+                  <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-100 text-emerald-700">
+                    80 / 100
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>

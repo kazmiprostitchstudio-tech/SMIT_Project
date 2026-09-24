@@ -16,7 +16,7 @@ import {
 import { useStudent } from '../context/StudentContext';
 import ProfileModal from '../components/ProfileModal';
 
-export default function CourseDashboard({ onBackToCourses }) {
+export default function CourseDashboard({ onNavigate, onBackToCourses }) {
   const { student } = useStudent();
   const [activeTab, setActiveTab] = useState('Quizzes');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,7 +51,7 @@ export default function CourseDashboard({ onBackToCourses }) {
             <button
               onClick={onBackToCourses}
               title="Back to Courses"
-              className="p-1 rounded-md text-gray-400 hover:bg-gray-100"
+              className="p-1 rounded-md text-gray-400 hover:bg-gray-100 transition"
             >
               <ChevronLeft size={18} />
             </button>
@@ -59,27 +59,50 @@ export default function CourseDashboard({ onBackToCourses }) {
 
           {/* Navigation Items */}
           <nav className="p-3 space-y-1">
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-smit-blue bg-blue-50/70 rounded-lg">
+            <button
+              onClick={() => onNavigate && onNavigate('dashboard')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-smit-blue bg-blue-50/70 rounded-lg transition"
+            >
               <LayoutDashboard size={16} />
               <span>Dashboard</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+
+            <button
+              onClick={() => onNavigate && onNavigate('progress')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition"
+            >
               <BookOpen size={16} />
               <span>Progress</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+
+            <button
+              onClick={() => onNavigate && onNavigate('attendance')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition"
+            >
               <Calendar size={16} />
               <span>Attendance</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+
+            <button
+              onClick={() => onNavigate && onNavigate('payment')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition"
+            >
               <CreditCard size={16} />
               <span>Payment</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+
+            <button
+              onClick={() => onNavigate && onNavigate('assignment')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition"
+            >
               <FileText size={16} />
               <span>Assignment</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg">
+
+            <button
+              onClick={() => onNavigate && onNavigate('quiz')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition"
+            >
               <HelpCircle size={16} />
               <span>Quiz</span>
             </button>
@@ -89,7 +112,7 @@ export default function CourseDashboard({ onBackToCourses }) {
         {/* Sidebar Footer User Info */}
         <div
           onClick={() => setIsModalOpen(true)}
-          className="p-3 border-t border-gray-100 flex items-center gap-2 cursor-pointer hover:bg-gray-50"
+          className="p-3 border-t border-gray-100 flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition"
         >
           <img
             src={student.avatar}
@@ -119,7 +142,7 @@ export default function CourseDashboard({ onBackToCourses }) {
             </span>
           </div>
 
-          <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-smit-blue">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-smit-blue transition">
             <MessageSquare size={15} />
             <span>Feedback</span>
           </button>
@@ -224,7 +247,7 @@ export default function CourseDashboard({ onBackToCourses }) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-gray-600">
-                      {student.feeRecords.map((fee, idx) => (
+                      {student.feeRecords?.map((fee, idx) => (
                         <tr key={idx} className="hover:bg-gray-50/50">
                           <td className="py-2.5 px-4 font-medium text-gray-800">{fee.month}</td>
                           <td className="py-2.5 px-4">{fee.amount}</td>

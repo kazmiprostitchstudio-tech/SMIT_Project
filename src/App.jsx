@@ -7,13 +7,18 @@ import AdminLogin from './pages/AdminLogin';
 import CoursesPage from './pages/CoursesPage';
 import CourseDashboard from './pages/CourseDashboard';
 import ProgressPage from './pages/ProgressPage';
+import AttendancePage from './pages/AttendancePage';
+import AssignmentPage from './pages/AssignmentPage';
+import PaymentPage from './pages/PaymentPage';
+import QuizPage from './pages/QuizPage';
 
 function MainApp() {
   const { currentUser, logout } = useAuth();
   const [currentRoleView, setCurrentRoleView] = useState('student');
-  // Navigation screen state: 'courses' | 'dashboard' | 'progress'
+  // Available screens: 'courses' | 'dashboard' | 'progress' | 'attendance' | 'assignment' | 'payment' | 'quiz'
   const [currentScreen, setCurrentScreen] = useState('courses');
 
+  // If user is logged in
   if (currentUser?.isLoggedIn) {
     if (currentScreen === 'courses') {
       return (
@@ -41,8 +46,53 @@ function MainApp() {
         />
       );
     }
+
+    if (currentScreen === 'attendance') {
+      return (
+        <AttendancePage
+          onNavigate={(screen) => setCurrentScreen(screen)}
+          onBackToCourses={() => setCurrentScreen('courses')}
+        />
+      );
+    }
+
+    if (currentScreen === 'assignment') {
+      return (
+        <AssignmentPage
+          onNavigate={(screen) => setCurrentScreen(screen)}
+          onBackToCourses={() => setCurrentScreen('courses')}
+        />
+      );
+    }
+
+    if (currentScreen === 'payment') {
+      return (
+        <PaymentPage
+          onNavigate={(screen) => setCurrentScreen(screen)}
+          onBackToCourses={() => setCurrentScreen('courses')}
+        />
+      );
+    }
+
+    if (currentScreen === 'quiz') {
+      return (
+        <QuizPage
+          onNavigate={(screen) => setCurrentScreen(screen)}
+          onBackToCourses={() => setCurrentScreen('courses')}
+        />
+      );
+    }
+
+    // Safe fallback: Agar koi screen match na ho tab bhi logged in Dashboard hi dikhayega, login page par nahi jayega
+    return (
+      <CourseDashboard
+        onNavigate={(screen) => setCurrentScreen(screen)}
+        onBackToCourses={() => setCurrentScreen('courses')}
+      />
+    );
   }
 
+  // If logged out, show portals
   return (
     <div>
       {currentRoleView === 'student' && (

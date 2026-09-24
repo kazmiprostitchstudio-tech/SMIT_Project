@@ -1,103 +1,57 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const StudentContext = createContext();
+const AuthContext = createContext(null);
 
-const DEFAULT_MODULES = [
-  {
-    id: 1,
-    title: 'Web Designing',
-    completed: 20,
-    total: 20,
-    percentage: 100,
-    subTopics: [
-      'HTML5 Semantic Tags & Structure',
-      'CSS3 Flexbox & Grid Systems',
-      'Responsive Web Design & Media Queries',
-      'Bootstrap 5 Framework',
-      'Tailwind CSS Basics & Components'
-    ]
-  },
-  {
-    id: 2,
-    title: 'Front-End Development',
-    completed: 27,
-    total: 31,
-    percentage: 87,
-    subTopics: [
-      'JavaScript ES6+ Syntax & Features',
-      'DOM Manipulation & Event Handling',
-      'Asynchronous JS, Promises & Async/Await',
-      'Fetch API & RESTful Endpoints',
-      'Local Storage & Session Storage'
-    ]
-  },
-  {
-    id: 3,
-    title: 'Modern Front-End Development',
-    completed: 10,
-    total: 14,
-    percentage: 71,
-    subTopics: [
-      'React Fundamentals & JSX',
-      'State & Props Management',
-      'React Hooks (useState, useEffect, useContext)',
-      'React Router DOM v6',
-      'Custom Hooks & Performance Optimization'
-    ]
-  },
-  {
-    id: 4,
-    title: 'Back-End Development',
-    completed: 1,
-    total: 16,
-    percentage: 6,
-    subTopics: [
-      'Node.js Runtime & NPM Ecosystem',
-      'Express.js Server & Routing',
-      'MongoDB & Mongoose Schema Modeling',
-      'JWT Authentication & Password Hashing',
-      'Deployment on Cloud Platforms'
-    ]
-  }
-];
-
-const DEFAULT_STUDENT = {
-  name: 'Muhammad Hassan',
-  rollNumber: '770860',
-  batch: '20',
-  campus: 'Zaitoon Ashraf IT Park',
-  city: 'Karachi',
-  courseName: 'Modern Web Application Development',
-  progress: 75,
-  attendance: { attended: 92, total: 113 },
-  assignment: { completed: 6, total: 15 },
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-  modules: DEFAULT_MODULES
-};
-
-export const StudentProvider = ({ children }) => {
-  const [student, setStudent] = useState(() => {
+export const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('smit_student_data');
-      return saved ? JSON.parse(saved) : DEFAULT_STUDENT;
-    } catch {
-      return DEFAULT_STUDENT;
+      const savedUser = localStorage.getItem('smit_auth_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (error) {
+      console.error('Error loading auth from localStorage:', error);
+      return null;
     }
   });
 
   useEffect(() => {
-    localStorage.setItem('smit_student_data', JSON.stringify(student));
-  }, [student]);
+    try {
+      if (currentUser) {
+        localStorage.setItem('smit_auth_user', JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem('smit_auth_user');
+      }
+    } catch (error) {
+      console.error('Error saving auth to localStorage:', error);
+    }
+  }, [currentUser]);
 
-  const updateProfile = (updatedData) => {
-    setStudent((prev) => ({ ...prev, ...updatedData }));
+  // Login handler
+  const login = (role, identifier, password) => {
+    const userData = {
+      role, // 'student' | 'trainer' | 'admin'
+      identifier,
+      isLoggedIn: true,
+      loginTime: new Date().toISOString()
+    };
+    setCurrentUser(userData);
+    return true;
+  };
+
+  // Logout handler
+  const logout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('smit_auth_user');
   };
 
   return (
-    <StudentContext.Provider value={{ student, updateProfile }}>
+    <AuthContext.Provider value={{ currentUser, login, logout }}>
       {children}
-    </StudentContext.Provider>
+    </AuthContext.Provider>
   );
 };
 
-export const useStudent = () => useContext(StudentContext);
+// Export useAuth hook
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  return context;
+};
