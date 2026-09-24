@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const StudentContext = createContext();
 
-// Sample Initial Assignments (Total 18: 14 Submitted/Approved, 4 Pending)
 const DEFAULT_ASSIGNMENTS = [
   {
     id: 1,
@@ -64,7 +63,6 @@ const DEFAULT_ASSIGNMENTS = [
     isClosed: true,
     submissionUrl: ''
   },
-  // Additional 12 approved/submitted assignments to reach 18 assigned & 14 submitted
   ...Array.from({ length: 12 }, (_, i) => ({
     id: i + 7,
     title: `Project Task #${i + 1} (JavaScript / CSS)`,
@@ -161,6 +159,10 @@ const DEFAULT_STUDENT = {
   courseName: 'Modern Web Application Development',
   progress: 75,
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  // Backward compatible keys for Dashboard
+  attendance: { attended: 92, total: 113 },
+  assignment: { completed: 14, total: 18 },
+  // Modern keys for Detailed Pages
   attendanceStats: {
     totalClasses: 113,
     present: 92,
@@ -199,10 +201,12 @@ export const StudentProvider = ({ children }) => {
         return {
           ...DEFAULT_STUDENT,
           ...parsed,
-          assignments: parsed.assignments || DEFAULT_ASSIGNMENTS,
+          attendance: parsed.attendance || DEFAULT_STUDENT.attendance,
+          assignment: parsed.assignment || DEFAULT_STUDENT.assignment,
           attendanceStats: parsed.attendanceStats || DEFAULT_STUDENT.attendanceStats,
           attendanceRecords: parsed.attendanceRecords || DEFAULT_ATTENDANCE_LIST,
           modules: parsed.modules || DEFAULT_MODULES,
+          assignments: parsed.assignments || DEFAULT_ASSIGNMENTS,
           feeRecords: parsed.feeRecords || DEFAULT_STUDENT.feeRecords
         };
       }
@@ -220,10 +224,9 @@ export const StudentProvider = ({ children }) => {
     setStudent((prev) => ({ ...prev, ...updatedData }));
   };
 
-  // Submit or update an assignment dynamically
   const submitAssignment = (id, submissionUrl) => {
     setStudent((prev) => {
-      const updatedList = prev.assignments.map((item) => {
+      const updatedList = (prev.assignments || []).map((item) => {
         if (item.id === id) {
           return {
             ...item,

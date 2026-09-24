@@ -21,6 +21,19 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
   const [activeTab, setActiveTab] = useState('Quizzes');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Safe dynamic calculations (no undefined errors)
+  const attendedCount = student?.attendanceStats?.present ?? student?.attendance?.attended ?? 92;
+  const totalAttendanceCount = student?.attendanceStats?.totalClasses ?? student?.attendance?.total ?? 113;
+
+  const totalAssignmentsCount = student?.assignments?.length ?? student?.assignment?.total ?? 18;
+  const completedAssignmentsCount = student?.assignments
+    ? student.assignments.filter(
+        (a) => a.status === 'APPROVED' || a.status === 'SUBMITTED' || a.status === 'LATE SUBMITTED'
+      ).length
+    : (student?.assignment?.completed ?? 14);
+
+  const feeList = student?.feeRecords || [];
+
   // Calendar dates matching SMIT UI
   const calendarDays = [
     { day: 'Sun', date: 20, active: false },
@@ -115,12 +128,12 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
           className="p-3 border-t border-gray-100 flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition"
         >
           <img
-            src={student.avatar}
-            alt={student.name}
+            src={student?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
+            alt={student?.name || 'User'}
             className="w-8 h-8 rounded-full object-cover border"
           />
           <span className="text-xs font-semibold text-gray-700 truncate">
-            {student.name}
+            {student?.name || 'Muhammad Hassan'}
           </span>
         </div>
       </aside>
@@ -138,7 +151,7 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
             </span>
             <span>&gt;</span>
             <span className="text-gray-800 font-medium truncate">
-              {student.courseName}
+              {student?.courseName || 'Modern Web Application Development'}
             </span>
           </div>
 
@@ -159,7 +172,7 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
                 <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-2xs flex justify-between items-start">
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">
-                      {student.attendance.attended}/{student.attendance.total}
+                      {attendedCount}/{totalAttendanceCount}
                     </h3>
                     <p className="text-xs text-gray-400 mt-1">Attendance</p>
                   </div>
@@ -171,7 +184,7 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
                 <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-2xs flex justify-between items-start">
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">
-                      {student.assignment.completed}/{student.assignment.total}
+                      {completedAssignmentsCount}/{totalAssignmentsCount}
                     </h3>
                     <p className="text-xs text-gray-400 mt-1">Assignment</p>
                   </div>
@@ -187,7 +200,7 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
                 <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-2xs">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-lg md:text-xl font-bold text-gray-900">
-                      {student.courseName}
+                      {student?.courseName || 'Modern Web Application Development'}
                     </h2>
                     <span className="px-2.5 py-0.5 text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-md">
                       ENROLLED
@@ -211,22 +224,22 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
                   <div className="space-y-1.5 mb-4">
                     <div className="flex justify-between text-xs text-gray-500 font-medium">
                       <span>Progress</span>
-                      <span>{student.progress}% Completed</span>
+                      <span>{student?.progress || 75}% Completed</span>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                       <div
                         className="bg-[#22c55e] h-2 rounded-full"
-                        style={{ width: `${student.progress}%` }}
+                        style={{ width: `${student?.progress || 75}%` }}
                       />
                     </div>
                   </div>
 
                   {/* Meta details */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-xs text-gray-600">
-                    <div><span className="font-semibold"># Batch:</span> {student.batch}</div>
-                    <div><span className="font-semibold">Roll:</span> {student.rollNumber}</div>
-                    <div><span className="font-semibold">Campus:</span> {student.campus}</div>
-                    <div><span className="font-semibold">City:</span> {student.city}</div>
+                    <div><span className="font-semibold"># Batch:</span> {student?.batch || '20'}</div>
+                    <div><span className="font-semibold">Roll:</span> {student?.rollNumber || '770860'}</div>
+                    <div><span className="font-semibold">Campus:</span> {student?.campus || 'Zaitoon Ashraf IT Park'}</div>
+                    <div><span className="font-semibold">City:</span> {student?.city || 'Karachi'}</div>
                   </div>
                 </div>
               </div>
@@ -247,7 +260,7 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-gray-600">
-                      {student.feeRecords?.map((fee, idx) => (
+                      {feeList.map((fee, idx) => (
                         <tr key={idx} className="hover:bg-gray-50/50">
                           <td className="py-2.5 px-4 font-medium text-gray-800">{fee.month}</td>
                           <td className="py-2.5 px-4">{fee.amount}</td>
@@ -267,9 +280,8 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
               </div>
             </div>
 
-            {/* Right Column: Class Schedule & Tab Widgets */}
+            {/* Right Column */}
             <div className="space-y-6">
-              {/* Class Schedule Calendar */}
               <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-2xs">
                 <div className="flex items-center gap-2 mb-4">
                   <Calendar size={16} className="text-gray-500" />
@@ -292,7 +304,6 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
                 </div>
               </div>
 
-              {/* Assignments / Quizzes / Events Tabs */}
               <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-2xs">
                 <div className="flex border-b border-gray-100 mb-6">
                   {['Assignments', 'Quizzes', 'Events'].map((tab) => (
@@ -320,7 +331,6 @@ export default function CourseDashboard({ onNavigate, onBackToCourses }) {
         </main>
       </div>
 
-      {/* Profile Settings Modal */}
       <ProfileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
