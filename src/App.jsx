@@ -6,13 +6,14 @@ import TrainerLogin from './pages/TrainerLogin';
 import AdminLogin from './pages/AdminLogin';
 import CoursesPage from './pages/CoursesPage';
 import CourseDashboard from './pages/CourseDashboard';
+import ProgressPage from './pages/ProgressPage';
 
 function MainApp() {
   const { currentUser, logout } = useAuth();
   const [currentRoleView, setCurrentRoleView] = useState('student');
-  const [currentScreen, setCurrentScreen] = useState('courses'); // 'courses' | 'dashboard'
+  // Navigation screen state: 'courses' | 'dashboard' | 'progress'
+  const [currentScreen, setCurrentScreen] = useState('courses');
 
-  // If user is logged in
   if (currentUser?.isLoggedIn) {
     if (currentScreen === 'courses') {
       return (
@@ -26,13 +27,22 @@ function MainApp() {
     if (currentScreen === 'dashboard') {
       return (
         <CourseDashboard
+          onNavigate={(screen) => setCurrentScreen(screen)}
+          onBackToCourses={() => setCurrentScreen('courses')}
+        />
+      );
+    }
+
+    if (currentScreen === 'progress') {
+      return (
+        <ProgressPage
+          onNavigate={(screen) => setCurrentScreen(screen)}
           onBackToCourses={() => setCurrentScreen('courses')}
         />
       );
     }
   }
 
-  // If not logged in, show respective portal
   return (
     <div>
       {currentRoleView === 'student' && (
